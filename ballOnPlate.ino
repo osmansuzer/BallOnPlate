@@ -37,9 +37,9 @@ float Ki = 0.13;         //  0.0066
 
 
 //PID const y
-float Kp1 = 0.53;         //0.53                                         
-float Kd1 = 0.25;         //0.25
-float Ki1 = 0.006;        //0.006
+float Kp1 = 0.567;         //0.53       //592                                  
+float Kd1 = 0.25;         //0.25        //25
+float Ki1 = 0.13;        //0.006       //006
 
 double Setpoint, Input, Output; //for X
 double Setpoint1, Input1, Output1; //for Y
@@ -69,10 +69,10 @@ void setup(){
   myPID.SetSampleTime(TIME_SAMPLE);  
   
   myPID1.SetMode(AUTOMATIC);
-  myPID1.SetOutputLimits(-600, 600);
+  myPID1.SetOutputLimits(-650, 650);
   myPID1.SetSampleTime(TIME_SAMPLE);  
 
-  Setpoint=500+50;// ?
+  Setpoint=550;// ?
   Setpoint1=500;
   
   delay(1000);
@@ -110,7 +110,7 @@ void loop(){
       servo1.write(Output = map(Output, -900, 900, 0, 180));//control
     
     if(myPID1.Compute() != false)
-      servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
+      servo2.write(Output1 = map(Output1, -650, 650, 0, 180));//control
 
     Serial.print("X: ");
     Serial.print(p.x);
