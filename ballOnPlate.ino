@@ -26,7 +26,7 @@ Servo servo1, servo2;
 //PID const x
 float Kp = 1.96;          // 1.96                                             
 float Kd = 0.370;          // 0.31   // 0.375
-float Ki = 0.0066;         //  0.0066                                            
+float Ki = 0.0068;         //  0.0066                                            
 
 //PID const y
 float Kp1 = 0.53;         //0.53                                         
@@ -97,13 +97,16 @@ void loop(){
      */
     Input=(p.x * convertX);  // read and convert X coordinate
     Input1=(p.y * convertY); // read and convert Y coordinate
-      
+	
+    Serial.println((int)(Setpoint-Input));
+    Serial.println((int)(Setpoint1-Input1));
+	
     if(myPID.Compute() != false)
       servo1.write(Output = map(Output, -900, 900, 0, 180));//control
     
     if(myPID1.Compute() != false)
       servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
-
+/*
     Serial.print("X: ");
     Serial.print(p.x);
     Serial.print(" Y: ");
@@ -112,7 +115,7 @@ void loop(){
     Serial.println(Output);
     Serial.print("Servo2 : ");
     Serial.println(Output1);
-    Serial.println("------");
+    Serial.println("------");*/
   }else{
     //restore starting position
     if(servo1.read() != SERVO_START_VAL)
