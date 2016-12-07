@@ -112,13 +112,6 @@ void loop(){
     if(myPID1.Compute() != false)
       servo2.write(Output1 = map(Output1, -650, 650, 0, 180));//control
 
-	long p1 = millis();
-      
-	Serial.println((int)(Setpoint-Input));
-	Serial.println((int)(Setpoint1-Input1));
-	
-	long p2 = millis();
-	
     Serial.print("X: ");
     Serial.print(p.x);
     Serial.print(" Y: ");
@@ -128,12 +121,7 @@ void loop(){
     Serial.print("Servo2 : ");
     Serial.println(Output1);
     Serial.println("------");
-    
-    long p3 = millis();
-    
-    Serial.println(p2-p1);
-    Serial.println(p3-p2);
-    
+
   }else{
     //restore starting position
     if(servo1.read() != SERVO_START_VAL)
@@ -167,5 +155,10 @@ void setDesiredPosition(){
 
    Setpoint = p.x;
    Setpoint1 = p.y;
+
+	Serial.println("Set ");
+	Serial.println(p.x);
+	Serial.println("Set1 ");
+	Serial.println(p.y);
   
 }

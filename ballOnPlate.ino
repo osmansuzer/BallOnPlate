@@ -112,14 +112,17 @@ void loop(){
     if(myPID1.Compute() != false)
       servo2.write(Output1 = map(Output1, -650, 650, 0, 180));//control
 
+	Serial.println((int)(Setpoint-Input));
+	Serial.println((int)(Setpoint1-Input1));
+      
     Serial.print("X: ");
-    Serial.print(p.x);
+    //Serial.print(p.x);
     Serial.print(" Y: ");
-    Serial.print(p.y);
-    Serial.print("\nServo1 : ");
-    Serial.println(Output);
+    //Serial.print(p.y);
+    Serial.print("aServo1 : ");
+    Serial.print(Output);
     Serial.print("Servo2 : ");
-    Serial.println(Output1);
+    Serial.print(Output1);
     Serial.println("------");
 
   }else{
