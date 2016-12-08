@@ -11,12 +11,8 @@
 #define XM A1
 #define YM 3 
 #define XP 4 
-//mid coordinates
-#define HOME_X 500
-#define HOME_Y 500
 
 #define EPSILON 10
-
 
 inline void setDesiredPosition();
 /* globals */
@@ -24,29 +20,17 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 Servo servo1, servo2;
 
 //PID const x
-/*
 float Kp = 1.96;          // 1.96                                             
-float Kd = 0.370;          // 0.31   // 0.375
-float Ki = 0.007;         //  0.0066                                            
-*/
-
-
-float Kp = 1.95;          // 1.96                                             
-float Kd = 0.60;          // 0.31   // 0.375
-float Ki = 0.13;         //  0.0066  
-
+float Kd = 0.66;          // 0.31   // 0.375
+float Ki = 0.135;         //  0.0066                                            
 
 //PID const y
-float Kp1 = 0.567;         //0.53       //592                                  
-float Kd1 = 0.25;         //0.25        //25
-float Ki1 = 0.13;        //0.006       //006
+float Kp1 = 0.585;         //0.53                                         
+float Kd1 = 0.27;         //0.25
+float Ki1 = 0.153;        //0.006
 
 double Setpoint, Input, Output; //for X
 double Setpoint1, Input1, Output1; //for Y
-
-//TODO
-float convertX = 1; // 240.0 / 792;  // converts raw x values to mm. found through manual calibration
-float convertY = 1; //300.0 / 660;   // converts raw y values to mm. found through manual calibration
 
 //init pid controller
 //INIT PID
@@ -69,11 +53,11 @@ void setup(){
   myPID.SetSampleTime(TIME_SAMPLE);  
   
   myPID1.SetMode(AUTOMATIC);
-  myPID1.SetOutputLimits(-650, 650);
+  myPID1.SetOutputLimits(-600, 600);
   myPID1.SetSampleTime(TIME_SAMPLE);  
 
-  Setpoint=550;// ?
-  Setpoint1=500;
+  Setpoint=250;
+  Setpoint1=800;
   
   delay(1000);
  
@@ -103,29 +87,26 @@ void loop(){
 
      /*TODO really need to convert to mm?
      */
-    Input=(p.x * convertX);  // read and convert X coordinate
-    Input1=(p.y * convertY); // read and convert Y coordinate
-      
+    Input=(p.x);  // read and convert X coordinate
+    Input1=(p.y); // read and convert Y coordinate
+  
     if(myPID.Compute() != false)
       servo1.write(Output = map(Output, -900, 900, 0, 180));//control
     
     if(myPID1.Compute() != false)
-      servo2.write(Output1 = map(Output1, -650, 650, 0, 180));//control
+      servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
 
-	Serial.println((int)(Setpoint-Input));
-	Serial.println((int)(Setpoint1-Input1));
-      
     Serial.print("X: ");
-    //Serial.print(p.x);
+    Serial.print(p.x);
     Serial.print(" Y: ");
-    //Serial.print(p.y);
-    Serial.print("aServo1 : ");
-    Serial.print(Output);
+    Serial.print(p.y);
+    Serial.print("\nServo1 : ");
+    Serial.println(Output);
     Serial.print("Servo2 : ");
-    Serial.print(Output1);
+    Serial.println(Output1);
     Serial.println("------");
-
-  }else{
+    
+  }else{    
     //restore starting position
     if(servo1.read() != SERVO_START_VAL)
       
@@ -133,7 +114,7 @@ void loop(){
   
    if(servo2.read() != SERVO_START_VAL)
       
-      servo2.write(SERVO_START_VAL);   
+      servo2.write(SERVO_START_VAL);      
   }
 }
 
@@ -158,10 +139,5 @@ void setDesiredPosition(){
 
    Setpoint = p.x;
    Setpoint1 = p.y;
-
-	Serial.println("Set ");
-	Serial.println(p.x);
-	Serial.println("Set1 ");
-	Serial.println(p.y);
   
 }
