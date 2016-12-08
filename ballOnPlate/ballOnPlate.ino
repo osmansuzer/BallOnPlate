@@ -85,10 +85,9 @@ void loop(){
 
       return ;
 
-     /*TODO really need to convert to mm?
-     */
-    Input=(p.x);  // read and convert X coordinate
-    Input1=(p.y); // read and convert Y coordinate
+    //get coordinates
+    Input=(p.x);  
+    Input1=(p.y);
   
     if(myPID.Compute() != false)
       servo1.write(Output = map(Output, -900, 900, 0, 180));//control
