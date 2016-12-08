@@ -25,9 +25,9 @@ float Kd = 0.66;          // 0.31   // 0.375
 float Ki = 0.135;         //  0.0066                                            
 
 //PID const y
-float Kp1 = 0.585;         //0.53                                         
+float Kp1 = 0.588;         //0.53                                         
 float Kd1 = 0.27;         //0.25
-float Ki1 = 0.153;        //0.006
+float Ki1 = 0.165;        //0.006
 
 double Setpoint, Input, Output; //for X
 double Setpoint1, Input1, Output1; //for Y
@@ -47,7 +47,7 @@ void setup(){
   servo1.write(SERVO_START_VAL);
   servo2.write(SERVO_START_VAL);
   
-  //Zapnutie PID
+  //Init PID
   myPID.SetMode(AUTOMATIC);
   myPID.SetOutputLimits(-900, 900);
   myPID.SetSampleTime(TIME_SAMPLE);  
@@ -56,8 +56,8 @@ void setup(){
   myPID1.SetOutputLimits(-600, 600);
   myPID1.SetSampleTime(TIME_SAMPLE);  
 
-  Setpoint=250;
-  Setpoint1=800;
+  Setpoint=550;
+  Setpoint1=500;
   
   delay(1000);
  
