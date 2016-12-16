@@ -58,9 +58,9 @@ bool sendSetpoints(float x, float y){
 	return sendBuf(buf, buf_size);
 }
 
-bool getCoordinates(int16_t* x, int16_t* y, float* servo_val){
+bool getCoordinates(int16_t* x, int16_t* y, float* servo_x, float* servo_y){
 
-	int buf_size = 8;
+	int buf_size = 12;
 	char buf[buf_size]; 
 	
 	if(readBuf(buf, buf_size) == false)
@@ -68,7 +68,8 @@ bool getCoordinates(int16_t* x, int16_t* y, float* servo_val){
 	
 	memcpy(x, buf,2);
 	memcpy(y, buf+2,2);
-	memcpy(servo_val, buf+4,4);
+	memcpy(servo_x, buf+4,4);
+	memcpy(servo_y, buf+8,4);
 		
 	return true;	
 }
