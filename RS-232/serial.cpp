@@ -8,6 +8,8 @@ bool init_serial(){
 		
 		return false;
 	
+	RS232_flushRX(COM_PORT);
+	
 	return true;	
 }
 

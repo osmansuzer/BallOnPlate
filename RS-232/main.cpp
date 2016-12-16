@@ -14,8 +14,6 @@ int main(){
 		exit(1);
 	}
 	
-	RS232_flushRX(COM_PORT);
-	
 	fprintf(stderr, "entered loop\n");
 	
 	while(1){
