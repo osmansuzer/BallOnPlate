@@ -1,12 +1,21 @@
 #include "serial.h"
 #include <iostream>
+#include <signal.h>
 
 using namespace std;
+
+void foo(int sig){
+	
+ RS232_CloseComport(COM_PORT)	;
+ exit(0);
+}
 
 int main(){
 		
 	int16_t x,  y;
 	float servo_x, servo_y;
+	
+	signal(SIGINT, foo);
 
 	if(!init_serial()){
 		

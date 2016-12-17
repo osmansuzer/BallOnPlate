@@ -3,13 +3,13 @@
 bool init_serial(){
 	
 	char mode[]={'8','N','1',0};
-
+	
 	if(RS232_OpenComport(COM_PORT, BD_RATE, mode))
-		
+			
 		return false;
 	
 	RS232_flushRX(COM_PORT);
-	
+
 	return true;	
 }
 

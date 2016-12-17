@@ -16,10 +16,13 @@
 #define EPSILON 10
 #define BUF_SIZE 12
 
+typedef enum {game, pid} mode_t;
+
 inline void setDesiredPosition();
 /* globals */
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 Servo servo1, servo2;
+mode_t mode;
 
 char buf[BUF_SIZE];
 
@@ -42,32 +45,37 @@ PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT); //x
 PID myPID1(&Input1, &Output1, &Setpoint1, Kp1, Ki1, Kd1, DIRECT); //y
 
 void setup(){
-  
-  Serial.begin(9600);
-  
-  servo1.attach(5);
-  servo2.attach(6);
-  
-  servo1.write(SERVO_START_VAL);
-  servo2.write(SERVO_START_VAL);
-  
-  //Init PID
-  myPID.SetMode(AUTOMATIC);
-  myPID.SetOutputLimits(-900, 900);
-  myPID.SetSampleTime(TIME_SAMPLE);  
-  
-  myPID1.SetMode(AUTOMATIC);
-  myPID1.SetOutputLimits(-600, 600);
-  myPID1.SetSampleTime(TIME_SAMPLE);  
 
-  Setpoint=550;
-  Setpoint1=500;
-   
+	Serial.begin(9600);
+
+	servo1.attach(5);
+	servo2.attach(6);
+
+	servo1.write(SERVO_START_VAL);
+	servo2.write(SERVO_START_VAL);
+
+	//Init PID
+	myPID.SetMode(AUTOMATIC);
+	myPID.SetOutputLimits(-900, 900);
+	myPID.SetSampleTime(TIME_SAMPLE);  
+
+	myPID1.SetMode(AUTOMATIC);
+	myPID1.SetOutputLimits(-600, 600);
+	myPID1.SetSampleTime(TIME_SAMPLE);  
+
+	Setpoint=550;
+	Setpoint1=500;
+
+	mode = pid;
 }
 
 int stable = 0;
 
 void loop(){
+
+	if(mode == game){
+	//TODO 
+  }
    
   setDesiredPosition();
   
@@ -144,16 +152,16 @@ void setDesiredPosition(){
   switch(*buf){
 
     case 0:
-      memcpy(Setpoint, buf+1, 4);
-      memcpy(Setpoint1, buf+5, 4);
+      memcpy(&Setpoint, buf+1, 4);
+      memcpy(&Setpoint1, buf+5, 4);
       break;
     case 1:
-      memcpy(Kp, buf+1, 4);
-      memcpy(Ki, buf+5, 4);
-      memcpy(Kd, buf+9, 4);
-      memcpy(Kp1, buf+13, 4);
-      memcpy(Ki1, buf+17, 4);
-      memcpy(Kd1, buf+21, 4);
+      memcpy(&Kp, buf+1, 4);
+      memcpy(&Ki, buf+5, 4);
+      memcpy(&Kd, buf+9, 4);
+      memcpy(&Kp1, buf+13, 4);
+      memcpy(&Ki1, buf+17, 4);
+      memcpy(&Kd1, buf+21, 4);
       
       break;
   }
