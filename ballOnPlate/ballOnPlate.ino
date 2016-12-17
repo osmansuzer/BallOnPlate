@@ -14,7 +14,7 @@
 #define XP 4 
 
 #define EPSILON 10
-#define BUF_SIZE 12
+#define BUF_SIZE 32
 
 typedef enum {game, pid} mode_t;
 
@@ -111,7 +111,7 @@ void loop(){
      memcpy(buf+8, &Output1, 4);
     
      Serial.write(buf, BUF_SIZE);
-    
+   
   }else{    
     //restore starting position
     if(servo1.read() != SERVO_START_VAL)
@@ -126,8 +126,10 @@ void loop(){
 
 void setDesiredPosition(){
 
-	if(!Serial.available())
+	if(Serial.available() == false)
 		return ;
+     
+  Serial.println("foo");
 
 	int n=0, incoming_size=0;
 
@@ -135,15 +137,18 @@ void setDesiredPosition(){
 
 		n+=Serial.readBytes(buf, 1);
 
+  Serial.println("foo");
+
 	switch(*buf){
 
-		case 0:
+		case '0':
 			incoming_size = 9;
 			break;
-		case 1:
+		case '1':
 			incoming_size = 25;
 			break;
 	}
+  Serial.println("foo");
 
 	while(n!=incoming_size)
 
@@ -151,17 +156,20 @@ void setDesiredPosition(){
 
   switch(*buf){
 
-    case 0:
+    case '0':
       memcpy(&Setpoint, buf+1, 4);
       memcpy(&Setpoint1, buf+5, 4);
       break;
-    case 1:
+    case '1':
       memcpy(&Kp, buf+1, 4);
       memcpy(&Ki, buf+5, 4);
       memcpy(&Kd, buf+9, 4);
       memcpy(&Kp1, buf+13, 4);
       memcpy(&Ki1, buf+17, 4);
       memcpy(&Kd1, buf+21, 4);
+
+      Serial.println("foo");
+      delay(20000);
       
       break;
   }

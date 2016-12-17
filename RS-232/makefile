@@ -1,2 +1,2 @@
 all:
-	g++ -o main main.cpp serial.cpp rs232.c
+	g++ main.cpp serial.cpp rs232.c -Wall -Wextra -o2 -o main
