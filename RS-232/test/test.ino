@@ -5,11 +5,11 @@ float Kp, Ki, Kd, Kp1, Ki1, Kd1;
 void setup(){
 
   Serial.begin(9600);
+
 }
 
 void loop(){
-
- setDesiredPosition();
+  setDesiredPosition();
 }
 char buf[30];
 
