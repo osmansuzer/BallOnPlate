@@ -28,13 +28,13 @@ int main(){
 	
 	fprintf(stderr, "entered loop\n");
 
- 	float arr[]={1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+ 	float arr[]={1.0, 3.0, 1.0, 1.0, 1.0, 1.0};
  	
   	unsigned char buf[1];
   int a;
 
-	a = RS232_SendBuf(COM_PORT, (unsigned char*)"11111111111111111111111111111", 25);
-	//RS232_SendBuf(COM_PORT, (unsigned char*)arr, sizeof(float) *6);
+	a = RS232_SendBuf(COM_PORT, (unsigned char*)"1", 1);
+	RS232_SendBuf(COM_PORT, (unsigned char*)arr, sizeof(float) *6);
 
 	fprintf(stderr,"%d",a);
 	fprintf(stderr, "entered loop2\n");
