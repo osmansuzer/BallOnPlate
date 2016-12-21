@@ -102,12 +102,6 @@ void close_serial(){
 	RS232_CloseComport(COM_PORT);
 }
 
-void sendLeds(char **leds){
-
-	RS232_SendBuf(COM_PORT, (unsigned char *)leds, 48);
-	RS232_flushTX(COM_PORT);
-}
-
 bool readLeds(char **leds){
 	
 	return readBuf((char*)leds, 48);
