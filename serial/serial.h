@@ -46,7 +46,7 @@ bool sendBuf(char *buf, int size);
  * 4 -> Iy
  * 5 -> Dy
  */
-bool sendPID(float* pid);
+//bool sendPID(float* pid);
 /**
  */
 bool getCoordinates(int16_t* x, int16_t* y, float* servo_x, float* servo_y);
