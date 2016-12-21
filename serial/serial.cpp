@@ -104,3 +104,18 @@ void close_serial(){
 
 	RS232_CloseComport(COM_PORT);
 }
+
+void sendLeds(char **leds){
+
+	RS232_SendBuf(COM_PORT, (unsigned char *)leds, 48);
+	RS232_flushTX(COM_PORT);
+}
+
+void readLeds(char **leds){
+	
+	int n=0;
+	
+	while(n<48)
+		
+		n+=RS232_PollComport(COM_PORT, (unsigned char*)leds+n, 48-n);
+}

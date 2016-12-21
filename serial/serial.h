@@ -9,7 +9,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#define COM_PORT 3
+#define COM_PORT 6
 #else
 #include <unistd.h>
 #define COM_PORT 24
@@ -53,4 +53,8 @@ bool getCoordinates(int16_t* x, int16_t* y, float* servo_x, float* servo_y);
 /**
  */
 bool sendSetpoints(float x, float y);
+
+void sendLeds(char **leds);
+
+void readLeds(char **leds);
 #endif //Serial.h
