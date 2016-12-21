@@ -56,5 +56,5 @@ bool sendSetpoints(float x, float y);
 
 void sendLeds(char **leds);
 
-void readLeds(char **leds);
+bool readLeds(char **leds);
 #endif //Serial.h

@@ -108,11 +108,7 @@ void sendLeds(char **leds){
 	RS232_flushTX(COM_PORT);
 }
 
-void readLeds(char **leds){
+bool readLeds(char **leds){
 	
-	int n=0;
-	
-	while(n<48)
-		
-		n+=RS232_PollComport(COM_PORT, (unsigned char*)leds+n, 48-n);
+	return readBuf((char*)leds, 48);
 }
