@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <PID_v1.h>
 #include "TouchScreen.h"
+#include "I2Cdev.h"
+#include "MPU6050.h" 
+#include "Wire.h"
 
 #define SERVO_START_VAL 90
 #define TIME_SAMPLE 30//ms
@@ -11,8 +14,8 @@
 //TouchScreen input pins, 0->4
 #define YP A0
 #define XM A1
-#define YM 3 
-#define XP 4 
+#define YM 3
+#define XP 4
 
 #define EPSILON 10
 #define BUF_SIZE 32
@@ -20,10 +23,49 @@
 typedef enum {game, pid} mode_t;
 
 inline void setDesiredPosition();
+inline void game_loop();
+
 /* globals */
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 Servo servo1, servo2;
 mode_t mode;
+
+//Gyro (MPU6050)
+MPU6050 gyro;
+
+//Gyro outputs
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+
+//pins of leds
+int leds[4][6];
+#define BORDERLINE_PIN 29
+#define FIRST_PIN 30
+
+
+//Touch Screen
+#define TS_MIN_X 160
+#define TS_MAX_X 910
+
+#define TS_MIN_Y 190
+#define TS_MAX_Y 880
+
+//for game1
+int game1_x[9];
+int game1_y[9];
+int step_count=0;
+int over_count=0;
+int last_index_x=1;
+int last_index_y=1;
+int last_pos_x;
+int last_pos_y;
+
+int level = 1;
+boolean first = true;
+boolean return_game=false;
+
+int ledXCoordinates[8];
+int ledYCoordinates[6];
 
 char buf[BUF_SIZE];
 
@@ -49,126 +91,498 @@ PID myPID1(&Input1, &Output1, &Setpoint1, Kp1, Ki1, Kd1, DIRECT); //y
 
 void setup(){
 
-  pinMode(29, OUTPUT);
-  pinMode(30, OUTPUT);
+    Serial.begin(115200);
 
-	Serial.begin(115200);
- 
-  while(!Serial)
-  ;
+    while(!Serial)
+        ;
 
-	servo1.attach(5);
-	servo2.attach(6);
+    servo1.attach(5);
+    servo2.attach(6);
 
-	servo1.write(SERVO_START_VAL);
-	servo2.write(SERVO_START_VAL);
+    servo1.write(SERVO_START_VAL);
+    servo2.write(SERVO_START_VAL);
 
-	//Init PID
-	myPID.SetMode(AUTOMATIC);
-	myPID.SetOutputLimits(-900, 900);
-	myPID.SetSampleTime(TIME_SAMPLE);  
+    //Init PID
+    myPID.SetMode(AUTOMATIC);
+    myPID.SetOutputLimits(-900, 900);
+    myPID.SetSampleTime(TIME_SAMPLE);
 
-	myPID1.SetMode(AUTOMATIC);
-	myPID1.SetOutputLimits(-600, 600);
-	myPID1.SetSampleTime(TIME_SAMPLE);  
+    myPID1.SetMode(AUTOMATIC);
+    myPID1.SetOutputLimits(-600, 600);
+    myPID1.SetSampleTime(TIME_SAMPLE);
 
-	Setpoint=550;
-	Setpoint1=500;
+    Setpoint=550;
+    Setpoint1=500;
 
-	mode = pid;
+    mode = pid;
+
+    //init leds
+    ledXCoordinates[0] = 160;
+    ledXCoordinates[1] = 260;
+    ledXCoordinates[2] = 365;
+    ledXCoordinates[3] = 470;
+    ledXCoordinates[4] = 570;
+    ledXCoordinates[5] = 675;
+
+    ledYCoordinates[0] = 115;
+    ledYCoordinates[1] = 230;
+    ledYCoordinates[2] = 340;
+    ledYCoordinates[3] = 440;
+
+    //gyro
+    Wire.begin();
+    gyro.initialize();
+
+    //leds
+    int i=0, j=0, pin=FIRST_PIN;
+
+    for(;i<4;++i)
+        for(j=0;j<6;++j){
+            leds[i][j] = pin++;
+            pinMode(leds[i][j], OUTPUT);
+        }
+
+    pinMode(BORDERLINE_PIN, OUTPUT);
 }
 
 int stable = 0;
 
 void loop(){
 
-	if(mode == game){
+    if(mode == game){
+        game_loop();
+        return ;
+    }
 
-  return ;
-  }
-  
-  setDesiredPosition(); 
-  
-  TSPoint p = ts.getPoint(); //get coordinates
-  
-  if(p.x != 0 && p.y != 1023){ //if ball on plate
-     
-    if(abs(p.y-(int)Setpoint1) <= EPSILON && abs(p.x-(int)Setpoint) <= EPSILON)
-  
-        ++stable; 
-  
-    else
+    setDesiredPosition();
 
-      stable = 0;
+    TSPoint p = ts.getPoint(); //get coordinates
 
-    if(stable >= 125)
+    if(p.x != 0 && p.y != 1023){ //if ball on plate
 
-      return ;
+        if(abs(p.y-(int)Setpoint1) <= EPSILON && abs(p.x-(int)Setpoint) <= EPSILON)
 
-    //get coordinates
-    Input=(p.x);  
-    Input1=(p.y);
-  
-    if(myPID.Compute() != false)
-      servo1.write(Output = map(Output, -900, 900, 0, 180));//control
-    
-    if(myPID1.Compute() != false)
-      servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
+            ++stable;
 
-     if(millis()-lastSent >= SEND_PERIOD){
+        else
 
-        lastSent=millis();
-  
-        Serial.write((char*)&p.x, 2);
-        Serial.write((char*)&p.y, 2);
-        Serial.write((char*)&Output, 4);
-        Serial.write((char*)&Output1, 4);
-     }else{
-      delay(1);
-     }
+            stable = 0;
 
-     delay(40);
-   
-  }else{    
-    //restore starting position
-    if(servo1.read() != SERVO_START_VAL)
-      
-      servo1.write(SERVO_START_VAL);
-  
-   if(servo2.read() != SERVO_START_VAL)
-      
-      servo2.write(SERVO_START_VAL);      
-  }
+        if(stable >= 125){
+
+            if(return_game){
+
+              return_game=false;
+              mode=game;
+            }
+
+            return ;
+        }
+        //get coordinates
+        Input=(p.x);
+        Input1=(p.y);
+
+        if(myPID.Compute() != false)
+            servo1.write(Output = map(Output, -900, 900, 0, 180));//control
+
+        if(myPID1.Compute() != false)
+            servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
+
+        if(millis()-lastSent >= SEND_PERIOD){
+
+            lastSent=millis();
+
+            Serial.write((char*)&p.x, 2);
+            Serial.write((char*)&p.y, 2);
+            Serial.write((char*)&Output, 4);
+            Serial.write((char*)&Output1, 4);
+        }else{
+            delay(1);
+        }
+
+        delay(40);
+
+    }else{
+        //restore starting position
+        if(servo1.read() != SERVO_START_VAL)
+
+            servo1.write(SERVO_START_VAL);
+
+        if(servo2.read() != SERVO_START_VAL)
+
+            servo2.write(SERVO_START_VAL);
+    }
 }
 
 void setDesiredPosition(){
 
-	if(!Serial.available())
-    return ;
+    if(!Serial.available())
+        return ;
 
-	int n=0, incoming_size=0;
+    int n=0, incoming_size=0;
 
-	while(n < 1)
-		n+=Serial.readBytes(buf, 1);
+    while(n < 1)
+        n+=Serial.readBytes(buf, 1);
 
-	switch(*buf){
+    switch(*buf){
 
-		case '0':
-			incoming_size = 9;
-			break;
-	}
+        case '0':
+            incoming_size = 9;
+            break;
+        case '1':
+            mode = game;
+            return ;
+     }
+
+    while(n < incoming_size)
+
+        n += Serial.readBytes(buf+n, incoming_size-n);
 
 
-	while(n < incoming_size)
-      
-		n += Serial.readBytes(buf+n, incoming_size-n);
-	
- 
-  switch(*buf){
+    switch(*buf){
 
-    case '0':
-      memcpy(&Setpoint, buf+1, 4);
-      memcpy(&Setpoint1, buf+5, 4);
-      break;
-  }
+        case '0':
+            memcpy(&Setpoint, buf+1, 4);
+            memcpy(&Setpoint1, buf+5, 4);
+            break;
+    }
 }
+
+void game_loop(){
+    if(level == 1 && first == true){
+        first = false;
+        step_count = 0;
+
+        game1_x[0] = 0; game1_y[0] = 0;
+        game1_x[1] = 1; game1_y[1] = 0;
+        game1_x[2] = 2; game1_y[2] = 0;
+        game1_x[3] = 3; game1_y[3] = 0;
+        game1_x[4] = 4; game1_y[4] = 0;
+        game1_x[5] = 5; game1_y[5] = 0;
+        game1_x[6] = 5; game1_y[6] = 1;
+        game1_x[7] = 5; game1_y[7] = 2;
+        game1_x[8] = 5; game1_y[8] = 3;
+
+        int a;
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(250);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(250);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(150);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(150);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(50);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(50);
+        }
+
+        digitalWrite(29, HIGH);
+    }
+
+    if(level == 2 && first == true){
+
+        first = false;
+        step_count = 0;
+
+        game1_x[0] = 0; game1_y[0] = 0;
+        game1_x[1] = 0; game1_y[1] = 1;
+        game1_x[2] = 0; game1_y[2] = 2;
+        game1_x[3] = 1; game1_y[3] = 2;
+        game1_x[4] = 1; game1_y[4] = 3;
+        game1_x[5] = 2; game1_y[5] = 3;
+        game1_x[6] = 3; game1_y[6] = 3;
+        game1_x[7] = 4; game1_y[7] = 3;
+        game1_x[8] = 5; game1_y[8] = 3;
+
+        int a;
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(250);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(250);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(150);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(150);
+        }
+
+        delay(250);
+
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(50);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(50);
+        }
+
+        digitalWrite(29, HIGH);
+
+    }
+
+    if(level == 3 && first == true){
+
+        first = false;
+        step_count = 0;
+
+        game1_x[0] = 0; game1_y[0] = 0;
+        game1_x[1] = 1; game1_y[1] = 0;
+        game1_x[2] = 2; game1_y[2] = 0;
+        game1_x[3] = 2; game1_y[3] = 1;
+        game1_x[4] = 2; game1_y[4] = 2;
+        game1_x[5] = 3; game1_y[5] = 2;
+        game1_x[6] = 4; game1_y[6] = 2;
+        game1_x[7] = 5; game1_y[7] = 2;
+        game1_x[8] = 5; game1_y[8] = 3;
+
+        int a;
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(250);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(250);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(150);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(150);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(50);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(50);
+        }
+
+        digitalWrite(29, HIGH);
+
+    }
+
+    if(level == 4 && first == true){
+
+        first = false;
+        step_count = 0;
+
+        game1_x[0] = 0;game1_y[0] = 0;
+        game1_x[1] = 1;game1_y[1] = 0;
+        game1_x[2] = 1;game1_y[2] = 1;
+        game1_x[3] = 2;game1_y[3] = 1;
+        game1_x[4] = 2;game1_y[4] = 2;
+        game1_x[5] = 2;game1_y[5] = 3;
+        game1_x[6] = 3;game1_y[6] = 3;
+        game1_x[7] = 4;game1_y[7] = 3;
+        game1_x[8] = 5;game1_y[8] = 3;
+
+        int a;
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(250);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(250);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(150);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(150);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(50);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(50);
+        }
+
+        digitalWrite(29, HIGH);
+
+    }
+
+
+    if(level == 5 && first == true){
+
+        first = false;
+        step_count = 0;
+
+        game1_x[0] = 0;game1_y[0] = 0;
+        game1_x[1] = 1;game1_y[1] = 0;
+        game1_x[2] = 1;game1_y[2] = 1;
+        game1_x[3] = 2;game1_y[3] = 1;
+        game1_x[4] = 2;game1_y[4] = 2;
+        game1_x[5] = 3;game1_y[5] = 2;
+        game1_x[6] = 4;game1_y[6] = 2;
+        game1_x[7] = 4;game1_y[7] = 3;
+        game1_x[8] = 5;game1_y[8] = 3;
+
+        int a;
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(250);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(250);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(150);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(150);
+        }
+
+        delay(250);
+
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
+            delay(50);
+        }
+        for(a=0; a<9; ++a){
+            digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
+            delay(50);
+        }
+
+        digitalWrite(29, HIGH);
+    }
+
+    int i;
+
+    gyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    ax = map(ax, -18000, 18000, 0, 180);
+    ay = map(ay, -18000, 18000, 0, 180);
+
+
+    servo1.write(ax);
+    servo2.write(ay);
+
+    TSPoint p = ts.getPoint();
+
+    if (p.x != 0 && p.y != 1023) {
+        int  Xm = map(p.x, 160, 910, 0, 800);
+        int Ym = map(p.y, 190, 880, 0, 600);
+
+        int indexX = Xm/100 - 1;
+        int indexY = Ym/100 - 1;
+
+        if(step_count != 9 &&
+           Xm < ledXCoordinates[game1_x[step_count]] + 100 && Xm > ledXCoordinates[game1_x[step_count]] - 40 &&
+           Ym < ledYCoordinates[game1_y[step_count]] + 100 && Ym > ledYCoordinates[game1_y[step_count]] - 40){
+            digitalWrite(leds[game1_y[step_count]][game1_x[step_count]], HIGH);
+            last_index_x = game1_x[step_count];
+            last_index_y = game1_y[step_count];
+            last_pos_x = p.x;
+            last_pos_y = p.y;
+            ++step_count;
+
+        }
+        else if(step_count != 9 &&
+                Xm < ledXCoordinates[last_index_x] + 100 && Xm > ledXCoordinates[last_index_x] - 100 &&
+                Ym < ledYCoordinates[last_index_y] + 100 && Ym > ledYCoordinates[last_index_y] - 100){
+
+        }
+        else if(step_count==9){
+            //win
+            for(i=0; i<9; ++i)
+                digitalWrite(leds[game1_y[i]][game1_x[i]], LOW);
+
+
+            TSPoint p = ts.getPoint();
+            int win = 6;
+            while(win!=0){
+                digitalWrite(29, LOW);
+                delay(500);
+                digitalWrite(29, HIGH);
+                delay(500);
+                TSPoint p = ts.getPoint();
+                --win;
+            }
+            step_count =0;
+            first = true;
+            ++level;
+        }
+        else{
+
+          /*  if(over_count < 3){
+
+              ++over_count;
+              mode=pid;
+              return_game = true;
+              Setpoint = last_pos_x;
+              Setpoint1 = last_pos_y;
+              return ;              
+            }
+*/
+            for(i=0; i<step_count; ++i)
+                digitalWrite(leds[game1_y[i]][game1_x[i]], LOW);
+
+            step_count=0;
+            digitalWrite(29, LOW);
+            delay(250);
+            digitalWrite(29, HIGH);
+        }
+    }
+}
+
