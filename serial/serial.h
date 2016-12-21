@@ -1,6 +1,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,18 +9,20 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#define COM_PORT 4
+#define COM_PORT 3
 #else
 #include <unistd.h>
 #define COM_PORT 24
 #endif
 
-#define BD_RATE 9600
+#define BD_RATE 115200
 
 #include "rs232.h"
 
 //serial portu initilize eder
 bool init_serial();
+//serial portu kapatır
+void close_serial(); 
 /**
  * serial porttan buffer okur.
  * @param buf: karakter bufferı

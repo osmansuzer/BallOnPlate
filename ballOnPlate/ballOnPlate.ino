@@ -7,6 +7,7 @@
 
 #define SERVO_START_VAL 90
 #define TIME_SAMPLE 30//ms
+#define SEND_PERIOD 60 //ms
 //TouchScreen input pins, 0->4
 #define YP A0
 #define XM A1
@@ -39,6 +40,8 @@ float Ki1 = 0.165;        //0.006
 double Setpoint, Input, Output; //for X
 double Setpoint1, Input1, Output1; //for Y
 
+long lastSent = 0;
+
 //init pid controller
 //INIT PID
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT); //x
@@ -46,7 +49,13 @@ PID myPID1(&Input1, &Output1, &Setpoint1, Kp1, Ki1, Kd1, DIRECT); //y
 
 void setup(){
 
-	Serial.begin(9600);
+  pinMode(29, OUTPUT);
+  pinMode(30, OUTPUT);
+
+	Serial.begin(115200);
+ 
+  while(!Serial)
+  ;
 
 	servo1.attach(5);
 	servo2.attach(6);
@@ -74,10 +83,11 @@ int stable = 0;
 void loop(){
 
 	if(mode == game){
-	//TODO 
+
+  return ;
   }
-   
-  setDesiredPosition();
+  
+  setDesiredPosition(); 
   
   TSPoint p = ts.getPoint(); //get coordinates
   
@@ -105,12 +115,19 @@ void loop(){
     if(myPID1.Compute() != false)
       servo2.write(Output1 = map(Output1, -600, 600, 0, 180));//control
 
-     memcpy(buf, &p.x, 2);
-     memcpy(buf+2, &p.y, 2);
-     memcpy(buf+4, &Output, 4);
-     memcpy(buf+8, &Output1, 4);
-    
-     Serial.write(buf, BUF_SIZE);
+     if(millis()-lastSent >= SEND_PERIOD){
+
+        lastSent=millis();
+  
+        Serial.write((char*)&p.x, 2);
+        Serial.write((char*)&p.y, 2);
+        Serial.write((char*)&Output, 4);
+        Serial.write((char*)&Output1, 4);
+     }else{
+      delay(1);
+     }
+
+     delay(40);
    
   }else{    
     //restore starting position
@@ -126,52 +143,32 @@ void loop(){
 
 void setDesiredPosition(){
 
-	if(Serial.available() == false)
-		return ;
-     
-  Serial.println("foo");
+	if(!Serial.available())
+    return ;
 
 	int n=0, incoming_size=0;
 
-	while(n!=1)
-
+	while(n < 1)
 		n+=Serial.readBytes(buf, 1);
-
-  Serial.println("foo");
 
 	switch(*buf){
 
 		case '0':
 			incoming_size = 9;
 			break;
-		case '1':
-			incoming_size = 25;
-			break;
 	}
-  Serial.println("foo");
 
-	while(n!=incoming_size)
 
-		n+=Serial.readBytes(buf+n, 1);
-
+	while(n < incoming_size)
+      
+		n += Serial.readBytes(buf+n, incoming_size-n);
+	
+ 
   switch(*buf){
 
     case '0':
       memcpy(&Setpoint, buf+1, 4);
       memcpy(&Setpoint1, buf+5, 4);
       break;
-    case '1':
-      memcpy(&Kp, buf+1, 4);
-      memcpy(&Ki, buf+5, 4);
-      memcpy(&Kd, buf+9, 4);
-      memcpy(&Kp1, buf+13, 4);
-      memcpy(&Ki1, buf+17, 4);
-      memcpy(&Kd1, buf+21, 4);
-
-      Serial.println("foo");
-      delay(20000);
-      
-      break;
   }
-
 }
