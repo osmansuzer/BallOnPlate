@@ -10,7 +10,7 @@
 
 #define SERVO_START_VAL 90
 #define TIME_SAMPLE 30//ms
-#define SEND_PERIOD 60 //ms
+#define SEND_PERIOD 90 //ms
 //TouchScreen input pins, 0->4
 #define YP A0
 #define XM A1
@@ -521,6 +521,19 @@ void game_loop(){
     TSPoint p = ts.getPoint();
 
     if (p.x != 0 && p.y != 1023) {
+
+        if(millis()-lastSent >= SEND_PERIOD){
+
+            lastSent=millis();
+
+            Serial.write((char*)&p.x, 2);
+            Serial.write((char*)&p.y, 2);
+            Serial.write((char*)&Output, 4);
+            Serial.write((char*)&Output1, 4);
+        }else{
+            delay(1);
+        }
+        
         int  Xm = map(p.x, 160, 910, 0, 800);
         int Ym = map(p.y, 190, 880, 0, 600);
 
