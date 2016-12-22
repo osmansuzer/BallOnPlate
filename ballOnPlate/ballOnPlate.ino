@@ -45,7 +45,8 @@ inline void five_low();
 inline void high_borderline();
 inline void low_borderline();
 
-inline void send_position(int x, int y, float agile1, float agile2);
+inline void send_position(int16_t x, int16_t y, float agile1, float agile2);
+inline void send_all(int16_t x, int16_t y, float agile1, float agile2, char**leds);
 /* globals */
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 Servo servo1, servo2;
@@ -1194,3 +1195,14 @@ void send_position(int16_t x, int16_t y, float agile1, float agile2){
         }
 
 }
+
+void send_all(int16_t x, int16_t y, float agile1, float agile2, char**leds){
+
+            Serial.write((char*)&x, 2);
+            Serial.write((char*)&y, 2);
+            Serial.write((char*)&agile1, 4);
+            Serial.write((char*)&agile2, 4);
+            Serial.write((char*)leds, 48);  
+
+}
+
