@@ -45,6 +45,7 @@ inline void five_low();
 inline void high_borderline();
 inline void low_borderline();
 
+inline void send_position(int x, int y, int agile1, int agile2);
 /* globals */
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 Servo servo1, servo2;
@@ -88,6 +89,7 @@ char game_leds[6][8];
 int level = 1;
 boolean first = true;
 boolean return_game=false;
+boolean again_flag = false;
 
 int ledXCoordinates[8];
 int ledYCoordinates[6];
@@ -202,13 +204,8 @@ void loop(){
 
         if(stable >= 125){
 
-            if(return_game){
-
-              return_game=false;
-              mode=game;
-            }
-
-            return ;
+            if(return_game)
+              return ;
         }
         //get coordinates
         Input=(p.x);
@@ -281,6 +278,10 @@ void setDesiredPosition(){
 }
 
 void game_loop(){
+    setDesiredPosition();
+    if(mode != game)
+      return;
+      
     if(level == 1 && first == true){
       
       
@@ -311,6 +312,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
 
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -318,7 +320,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -329,7 +331,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -337,7 +339,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -349,16 +351,16 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
         }
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
-
+  
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -395,7 +397,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -403,7 +405,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -414,7 +416,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -422,7 +424,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -432,18 +434,18 @@ void game_loop(){
 
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
-
+            
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
         }
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
-
+            
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -480,7 +482,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -488,7 +490,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -499,7 +501,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -507,7 +509,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -519,7 +521,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -528,7 +530,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -564,7 +566,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -572,7 +574,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -583,7 +585,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -591,7 +593,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -600,10 +602,11 @@ void game_loop(){
         delay(250);
 
         for(a=0; a<9; ++a){
+        
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -612,7 +615,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -649,7 +652,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -657,7 +660,7 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(250);
@@ -668,15 +671,15 @@ void game_loop(){
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
-           Serial.write((char*)game_leds, 48);
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
+            Serial.write((char*)game_leds, 48);
             
             delay(150);
         }
         for(a=0; a<9; ++a){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(150);
@@ -688,7 +691,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], HIGH);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 't';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -697,7 +700,7 @@ void game_loop(){
             digitalWrite(leds[game1_y[a]][game1_x[a]], LOW);
 
             game_leds[game1_y[a]+1][game1_x[a]+1] = 'f';
-
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             delay(50);
@@ -706,7 +709,9 @@ void game_loop(){
 
     int i;
 
-    high_borderline();
+    send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
+    if(!again_flag)
+      high_borderline();
     
     gyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
     gyro.testConnection() ? low_borderline() : high_borderline();
@@ -732,7 +737,8 @@ void game_loop(){
         }else{
              delay(1);
         }
-        
+
+        delay(40);
       
         int  Xm = map(p.x, 160, 910, 0, 800);
         int Ym = map(p.y, 190, 880, 0, 600);
@@ -744,7 +750,8 @@ void game_loop(){
            Xm < ledXCoordinates[game1_x[step_count]] + 100 && Xm > ledXCoordinates[game1_x[step_count]] - 40 &&
            Ym < ledYCoordinates[game1_y[step_count]] + 100 && Ym > ledYCoordinates[game1_y[step_count]] - 40){
             digitalWrite(leds[game1_y[step_count]][game1_x[step_count]], HIGH);
-            
+
+           again_flag = false;
             last_index_x = game1_x[step_count];
             last_index_y = game1_y[step_count];
             last_pos_x = p.x;
@@ -764,21 +771,27 @@ void game_loop(){
         }
         else if(step_count==9){
             //win
+            
             for(i=0; i<9; ++i){
               digitalWrite(leds[game1_y[i]][game1_x[i]], LOW);
               game_leds[game1_y[i]+1][game1_x[i]+1] = 'f';
             }
-                
+
+            servo1.write(SERVO_START_VAL);
+            servo2.write(SERVO_START_VAL);
+            
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
 
             TSPoint p = ts.getPoint();
-            int win = 6;
+            int win = 3;
             while(win!=0){
+                send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
                 low_borderline();
                 delay(500);
+                send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
                 high_borderline();                
                 delay(500);
-                TSPoint p = ts.getPoint();
                 --win;
             }
             step_count =0;
@@ -797,17 +810,24 @@ void game_loop(){
               return ;              
             }
 */
-            for(i=0; i<step_count; ++i){
+            servo1.write(SERVO_START_VAL);
+            servo2.write(SERVO_START_VAL);
+
+
+            ////////// 1, 1 ledi yanık olsun //////////////////////
+            for(i=1; i<step_count; ++i){
                 digitalWrite(leds[game1_y[i]][game1_x[i]], LOW);
                 game_leds[game1_y[i]+1][game1_x[i]+1] = 'f';
             }
 
+            again_flag = true;
+            low_borderline();
+            
+            send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
             Serial.write((char*)game_leds, 48);
             
             step_count=0;
-            high_borderline();
-            delay(500);
-            low_borderline();
+            
         }
     }
 }
@@ -815,6 +835,9 @@ void game_loop(){
 
 
 void one_high(){
+
+  
+  
   digitalWrite(leds[1][4], HIGH);
   digitalWrite(leds[1][1], HIGH);
   digitalWrite(leds[2][5], HIGH);
@@ -833,6 +856,10 @@ void one_high(){
   game_leds[3][2]= 't';
   game_leds[4][2]= 't';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -856,6 +883,11 @@ void one_low(){
   game_leds[3][2]= 'f';
   game_leds[4][2]= 'f';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
+  
   Serial.write((char*)game_leds, 48);
 }
 
@@ -873,18 +905,22 @@ void two_high(){
   digitalWrite(leds[3][3], HIGH);
   digitalWrite(leds[3][1], HIGH);
 
-  game_leds[1][5]= 't';
-  game_leds[1][3]= 't';
-  game_leds[1][2]= 't';
-  game_leds[1][1]= 't';
-  game_leds[2][5]= 't';
+  game_leds[2][6]= 't';
+  game_leds[2][4]= 't';
   game_leds[2][3]= 't';
-  game_leds[2][1]= 't';
-  game_leds[3][5]= 't';
+  game_leds[2][2]= 't';
+  game_leds[3][6]= 't';
   game_leds[3][4]= 't';
-  game_leds[3][3]= 't';
-  game_leds[3][1]= 't';
+  game_leds[3][2]= 't';
+  game_leds[4][6]= 't';
+  game_leds[4][7]= 't';
+  game_leds[4][4]= 't';
+  game_leds[4][2]= 't';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -901,18 +937,23 @@ void two_low(){
   digitalWrite(leds[3][3], LOW);
   digitalWrite(leds[3][1], LOW);
 
-  game_leds[1][5]= 'f';
-  game_leds[1][3]= 'f';
-  game_leds[1][2]= 'f';
-  game_leds[1][1]= 'f';
-  game_leds[2][5]= 'f';
+  game_leds[2][6]= 'f';
+  game_leds[2][4]= 'f';
   game_leds[2][3]= 'f';
-  game_leds[2][1]= 'f';
-  game_leds[3][5]= 'f';
+  game_leds[2][2]= 'f';
+  game_leds[3][6]= 'f';
   game_leds[3][4]= 'f';
-  game_leds[3][3]= 'f';
-  game_leds[3][1]= 'f';
+  game_leds[3][2]= 'f';
+  game_leds[4][6]= 'f';
+  game_leds[4][7]= 'f';
+  game_leds[4][4]= 'f';
+  game_leds[4][2]= 'f';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
+  
   Serial.write((char*)game_leds, 48);
   
 }
@@ -931,18 +972,22 @@ void tree_high(){
   digitalWrite(leds[3][1], HIGH);
 
 
-  game_leds[1][5]= 't';
-  game_leds[1][3]= 't';
-  game_leds[1][1]= 't';
-  game_leds[2][5]= 't';
-  game_leds[2][3]= 't';
-  game_leds[2][1]= 't';
-  game_leds[3][5]= 't';
+  game_leds[2][6]= 't';
+  game_leds[2][4]= 't';
+  game_leds[2][2]= 't';
+  game_leds[3][6]= 't';
   game_leds[3][4]= 't';
-  game_leds[3][3]= 't';
   game_leds[3][2]= 't';
-  game_leds[3][1]= 't';
+  game_leds[4][6]= 't';
+  game_leds[4][5]= 't';
+  game_leds[4][4]= 't';
+  game_leds[4][3]= 't';
+  game_leds[4][2]= 't';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -960,18 +1005,22 @@ void tree_low(){
   digitalWrite(leds[3][2], LOW);
   digitalWrite(leds[3][1], LOW);
 
-  game_leds[1][5]= 'f';
-  game_leds[1][3]= 'f';
-  game_leds[1][1]= 'f';
-  game_leds[2][5]= 'f';
-  game_leds[2][3]= 'f';
-  game_leds[2][1]= 'f';
-  game_leds[3][5]= 'f';
+  game_leds[2][6]= 'f';
+  game_leds[2][4]= 'f';
+  game_leds[2][2]= 'f';
+  game_leds[3][6]= 'f';
   game_leds[3][4]= 'f';
-  game_leds[3][3]= 'f';
   game_leds[3][2]= 'f';
-  game_leds[3][1]= 'f';
+  game_leds[4][6]= 'f';
+  game_leds[4][5]= 'f';
+  game_leds[4][4]= 'f';
+  game_leds[4][3]= 'f';
+  game_leds[4][2]= 'f';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -986,16 +1035,20 @@ void four_high(){
   digitalWrite(leds[3][2], HIGH);
   digitalWrite(leds[3][1], HIGH);
 
-  game_leds[1][5]= 't';
-  game_leds[1][4]= 't';
-  game_leds[1][3]= 't';
-  game_leds[2][3]= 't';
-  game_leds[3][5]= 't';
+  game_leds[2][6]= 't';
+  game_leds[2][5]= 't';
+  game_leds[2][4]= 't';
   game_leds[3][4]= 't';
-  game_leds[3][3]= 't';
-  game_leds[3][2]= 't';
-  game_leds[3][1]= 't';
+  game_leds[4][6]= 't';
+  game_leds[4][5]= 't';
+  game_leds[4][4]= 't';
+  game_leds[4][3]= 't';
+  game_leds[4][2]= 't';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -1010,16 +1063,20 @@ void four_low(){
   digitalWrite(leds[3][2], LOW);
   digitalWrite(leds[3][1], LOW);
 
-  game_leds[1][5]= 'f';
-  game_leds[1][4]= 'f';
-  game_leds[1][3]= 'f';
-  game_leds[2][3]= 'f';
-  game_leds[3][5]= 'f';
+  game_leds[2][6]= 'f';
+  game_leds[2][5]= 'f';
+  game_leds[2][4]= 'f';
   game_leds[3][4]= 'f';
-  game_leds[3][3]= 'f';
-  game_leds[3][2]= 'f';
-  game_leds[3][1]= 'f';
+  game_leds[4][6]= 'f';
+  game_leds[4][5]= 'f';
+  game_leds[4][4]= 'f';
+  game_leds[4][3]= 'f';
+  game_leds[4][2]= 'f';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -1037,18 +1094,22 @@ void five_high(){
   digitalWrite(leds[3][2], HIGH);
   digitalWrite(leds[3][1], HIGH);
 
-  game_leds[1][5]= 't';
-  game_leds[1][4]= 't';
-  game_leds[1][3]= 't';
-  game_leds[1][1]= 't';
+  game_leds[2][6]= 't';
   game_leds[2][5]= 't';
-  game_leds[2][3]= 't';
-  game_leds[2][1]= 't';
-  game_leds[3][5]= 't';
-  game_leds[3][3]= 't';
+  game_leds[2][4]= 't';
+  game_leds[2][2]= 't';
+  game_leds[3][6]= 't';
+  game_leds[3][4]= 't';
   game_leds[3][2]= 't';
-  game_leds[3][1]= 't';
+  game_leds[4][6]= 't';
+  game_leds[4][4]= 't';
+  game_leds[4][3]= 't';
+  game_leds[4][2]= 't';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -1066,18 +1127,22 @@ void five_low(){
   digitalWrite(leds[3][2], LOW);
   digitalWrite(leds[3][1], LOW);
 
-  game_leds[1][5]= 'f';
-  game_leds[1][4]= 'f';
-  game_leds[1][3]= 'f';
-  game_leds[1][1]= 'f';
+  game_leds[2][6]= 'f';
   game_leds[2][5]= 'f';
-  game_leds[2][3]= 'f';
-  game_leds[2][1]= 'f';
-  game_leds[3][5]= 'f';
-  game_leds[3][3]= 'f';
+  game_leds[2][4]= 'f';
+  game_leds[2][2]= 'f';
+  game_leds[3][6]= 'f';
+  game_leds[3][4]= 'f';
   game_leds[3][2]= 'f';
-  game_leds[3][1]= 'f';
+  game_leds[4][6]= 'f';
+  game_leds[4][4]= 'f';
+  game_leds[4][3]= 'f';
+  game_leds[4][2]= 'f';
 
+  servo1.write(SERVO_START_VAL);
+  servo2.write(SERVO_START_VAL);
+  
+  send_position(0, 1023,SERVO_START_VAL, SERVO_START_VAL);
   Serial.write((char*)game_leds, 48);
 }
 
@@ -1093,8 +1158,9 @@ void high_borderline(){
     game_leds[0][a] = 't';
     game_leds[5][a] = 't';
   }
-
+  
   Serial.write((char*)game_leds, 48);
+  
 }
 
 void low_borderline(){
@@ -1111,4 +1177,19 @@ void low_borderline(){
   }
 
   Serial.write((char*)game_leds, 48);
+}
+
+void send_position(int x, int y, int agile1, int agile2){
+  if(millis()-lastSent >= SEND_PERIOD){
+
+            lastSent=millis();
+
+            Serial.write((char*)&x, 2);
+            Serial.write((char*)&y, 2);
+            Serial.write((char*)&agile1, 4);
+            Serial.write((char*)&agile2, 4);
+        }else{
+             delay(1);
+        }
+
 }
