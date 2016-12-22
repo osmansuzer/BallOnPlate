@@ -256,6 +256,7 @@ void setDesiredPosition(){
     switch(*buf){
 
         case '0':
+            mode=pid;
             incoming_size = 9;
             break;
         case '1':
