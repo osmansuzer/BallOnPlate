@@ -1180,15 +1180,15 @@ void low_borderline(){
   Serial.write((char*)game_leds, 48);
 }
 
-void send_position(int x, int y, int agile1, int agile2){
+void send_position(int16_t x, int16_t y, int16_t agile1, int16_t agile2){
   if(millis()-lastSent >= SEND_PERIOD){
 
             lastSent=millis();
 
             Serial.write((char*)&x, 2);
             Serial.write((char*)&y, 2);
-            Serial.write((char*)&agile1, 4);
-            Serial.write((char*)&agile2, 4);
+            Serial.write((char*)&agile1, 2);
+            Serial.write((char*)&agile2, 2);
         }else{
              delay(1);
         }
