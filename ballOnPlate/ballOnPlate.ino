@@ -12,7 +12,7 @@
 
 #define SERVO_START_VAL 90
 #define TIME_SAMPLE 30//ms
-#define SEND_PERIOD 90 //ms
+#define SEND_PERIOD 150 //ms
 //TouchScreen input pins, 0->4
 #define YP A0
 #define XM A1
@@ -22,7 +22,7 @@
 #define EPSILON 10
 #define BUF_SIZE 32
 
-typedef enum {game, pid} mode_t;
+typedef enum {game, pid, square, triangle} mode_t;
 
 inline void setDesiredPosition();
 inline void game_loop();
@@ -44,6 +44,9 @@ inline void five_low();
 
 inline void high_borderline();
 inline void low_borderline();
+
+inline void draw_square();
+inline void draw_triangle();
 
 inline void send_position(int16_t x, int16_t y, float agile1, float agile2);
 inline void send_all(int16_t x, int16_t y, float agile1, float agile2, char**leds);
@@ -98,14 +101,14 @@ int ledYCoordinates[6];
 char buf[BUF_SIZE];
 
 //PID const x
-float Kp = 1.96;          // 1.96                                             
-float Kd = 0.4;          // 0.31   // 0.375
-float Ki = 0.0;         //  0.0066                                            
+float Kp = 1.98;          // 1.96                                             
+float Kd = 1.0;          // 0.31   // 0.375
+float Ki = 0.067;         //  0.0066                                            
 
 //PID const y
-float Kp1 = 0.588;         //0.53                                         
-float Kd1 = 0.27;         //0.25
-float Ki1 = 0.165;        //0.006
+float Kp1 = 1.0;         //0.53                                         
+float Kd1 = 0.5;         //0.25
+float Ki1 = 0.002;        //0.006
 
 double Setpoint, Input, Output; //for X
 double Setpoint1, Input1, Output1; //for Y
@@ -263,6 +266,12 @@ void setDesiredPosition(){
         case '1':
             mode = game;
             return ;
+        case '2':
+             mode = square;
+             return ;
+         case '3':
+              mode = triangle;
+              return ;
      }
 
     while(n < incoming_size)
@@ -1203,6 +1212,22 @@ void send_all(int16_t x, int16_t y, float agile1, float agile2, char**leds){
             Serial.write((char*)&agile1, 4);
             Serial.write((char*)&agile2, 4);
             Serial.write((char*)leds, 48);  
+
+}
+
+
+inline void draw_square(){
+
+
+
+
+
+}
+
+inline void draw_triangle(){
+
+
+
 
 }
 
