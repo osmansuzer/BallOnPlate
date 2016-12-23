@@ -22,7 +22,7 @@
 #define EPSILON 10
 #define BUF_SIZE 32
 
-typedef enum {game, pid, square, triangle} mode_t;
+typedef enum {game, pid} mode_t;
 
 inline void setDesiredPosition();
 inline void game_loop();
@@ -266,12 +266,6 @@ void setDesiredPosition(){
         case '1':
             mode = game;
             return ;
-        case '2':
-             mode = square;
-             return ;
-         case '3':
-              mode = triangle;
-              return ;
      }
 
     while(n < incoming_size)
