@@ -99,8 +99,8 @@ char buf[BUF_SIZE];
 
 //PID const x
 float Kp = 1.96;          // 1.96                                             
-float Kd = 0.66;          // 0.31   // 0.375
-float Ki = 0.135;         //  0.0066                                            
+float Kd = 0.4;          // 0.31   // 0.375
+float Ki = 0.0;         //  0.0066                                            
 
 //PID const y
 float Kp1 = 0.588;         //0.53                                         
@@ -230,7 +230,7 @@ void loop(){
             delay(1);
         }
 
-        delay(40);
+        delay(29);
 
     }else{
         //restore starting position
