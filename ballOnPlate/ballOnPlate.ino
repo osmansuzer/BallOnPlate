@@ -42,12 +42,6 @@ inline void four_low();
 inline void five_high();
 inline void five_low();
 
-inline void high_borderline();
-inline void low_borderline();
-
-inline void draw_square();
-inline void draw_triangle();
-
 inline void send_position(int16_t x, int16_t y, float agile1, float agile2);
 inline void send_all(int16_t x, int16_t y, float agile1, float agile2, char**leds);
 /* globals */
